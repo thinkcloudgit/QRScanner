@@ -214,7 +214,7 @@ public class QRScannerView: UIView {
         session.addInput(videoInput)
         metadataOutput.setMetadataObjectsDelegate(self, queue: metadataQueue)
         session.addOutput(metadataOutput)
-        metadataOutput.metadataObjectTypes = [.qr]
+        metadataOutput.metadataObjectTypes = [.qr, .code128]
 
         videoDataOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA]
         videoDataOutput.setSampleBufferDelegate(self, queue: videoDataQueue)
