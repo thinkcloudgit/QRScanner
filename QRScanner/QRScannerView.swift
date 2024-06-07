@@ -154,8 +154,7 @@ public class QRScannerView: UIView {
     private var rectofIntrest: CGRect = {
         return CGRect()
     }()
-    private let supportedCodeTypes = [AVMetadataObject.ObjectType.code128,
-                                      AVMetadataObject.ObjectType.qr]
+    private let supportedCodeTypes = [AVMetadataObject.ObjectType.code128]
     private lazy var blurEffectView: UIVisualEffectView = {
         let blurEffectView = UIVisualEffectView(effect: UIBlurEffect(style: .light))
         blurEffectView.frame = self.bounds
