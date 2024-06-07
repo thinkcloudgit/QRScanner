@@ -263,13 +263,13 @@ public class QRScannerView: UIView {
             metadataOutputEnable = true
             metadataQueue.async { [weak self] in
                 self?.session.startRunning()
-                DispatchQueue.main.async {
-                    guard let strongSelf = self else { return }
-                    let rect = strongSelf.previewLayer!.metadataOutputRectConverted(fromLayerRect: strongSelf.focusImageView.frame)
-                    print("rect: \(rect)")
-        //           correct rect: (0.19817073170731705, 0.3170731707317074, 0.20579268292682926, 0.36585365853658536)
-                    strongSelf.metadataOutput.rectOfInterest = rect
-                }
+//                DispatchQueue.main.async {
+//                    guard let strongSelf = self else { return }
+//                    let rect = strongSelf.previewLayer!.metadataOutputRectConverted(fromLayerRect: strongSelf.focusImageView.frame)
+//                    print("rect: \(rect)")
+//        //           correct rect: (0.19817073170731705, 0.3170731707317074, 0.20579268292682926, 0.36585365853658536)
+//                    strongSelf.metadataOutput.rectOfInterest = rect
+//                }
             }
         }
     }
@@ -376,7 +376,7 @@ extension QRScannerView: AVCaptureMetadataOutputObjectsDelegate {
     public func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
         guard metadataOutputEnable else { return }
         if let metadataObject = metadataObjects.first {
-            guard let readableObject = previewLayer?.transformedMetadataObject(for: metadataObject) as? AVMetadataMachineReadableCodeObject, supportedCodeTypes.contains(metadataObject.type) else { return }
+            guard let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject, supportedCodeTypes.contains(metadataObject.type) else { return }
             guard let stringValue = readableObject.stringValue else { return }
             print(stringValue)
             metadataOutputEnable = false
