@@ -244,11 +244,6 @@ public class QRScannerView: UIView {
         metadataOutput.setMetadataObjectsDelegate(self, queue: metadataQueue)
         session.addOutput(metadataOutput)
         metadataOutput.metadataObjectTypes = [.qr, .code128]
-        let width = bounds.width * 0.618 * 0.5
-        let x = self.bounds.width * 0.191
-        let y = self.bounds.height * 0.191
-        self.rectofIntrest = CGRect(x: x, y: y, width: width, height: width)
-        metadataOutput.rectOfInterest = self.rectofIntrest
         videoDataOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA]
         videoDataOutput.setSampleBufferDelegate(self, queue: videoDataQueue)
         session.addOutput(videoDataOutput)
@@ -268,6 +263,13 @@ public class QRScannerView: UIView {
             metadataOutputEnable = true
             metadataQueue.async { [weak self] in
                 self?.session.startRunning()
+                DispatchQueue.main.async {
+                    guard let strongSelf = self else { return }
+                    let rect = strongSelf.previewLayer!.metadataOutputRectConverted(fromLayerRect: strongSelf.focusImageView.frame)
+                    print("rect: \(rect)")
+        //           correct rect: (0.19817073170731705, 0.3170731707317074, 0.20579268292682926, 0.36585365853658536)
+                    strongSelf.metadataOutput.rectOfInterest = rect
+                }
             }
         }
     }
@@ -282,7 +284,9 @@ public class QRScannerView: UIView {
         let width = 300.0
         let x = self.bounds.width * 0.191
         let y = self.bounds.height * 0.191
-        focusImageView = UIImageView(frame: CGRect(x: x, y: y, width: width, height: width))
+        let screenWidth = self.frame.size.width
+        let xPos = (CGFloat(screenWidth) / CGFloat(2)) - (CGFloat(width) / CGFloat(2))
+        focusImageView = UIImageView(frame: CGRect(x: xPos, y: 150, width: width, height: width))
         focusImageView.image = focusImage ?? UIImage(named: "scan_qr_focus", in: .module, compatibleWith: nil)
         addSubview(focusImageView)
 
