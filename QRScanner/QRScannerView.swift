@@ -244,7 +244,7 @@ public class QRScannerView: UIView {
         metadataOutput.setMetadataObjectsDelegate(self, queue: metadataQueue)
         session.addOutput(metadataOutput)
         metadataOutput.metadataObjectTypes = [.qr, .code128]
-        let width = 300.0
+        let width = bounds.width * 0.618 * 0.5
         let x = self.bounds.width * 0.191
         let y = self.bounds.height * 0.191
         self.rectofIntrest = CGRect(x: x, y: y, width: width, height: width)
