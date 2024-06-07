@@ -281,7 +281,7 @@ public class QRScannerView: UIView {
     }
 
     private func setupImageViews() {
-        let width = 300.0
+        let width = self.bounds.width * 0.618
         let x = self.bounds.width * 0.191
         let y = self.bounds.height * 0.191
         let screenWidth = self.frame.size.width
