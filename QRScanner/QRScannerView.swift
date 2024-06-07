@@ -341,6 +341,7 @@ extension QRScannerView: AVCaptureMetadataOutputObjectsDelegate {
         if let metadataObject = metadataObjects.first {
             guard let readableObject = previewLayer?.transformedMetadataObject(for: metadataObject) as? AVMetadataMachineReadableCodeObject, metadataObject.type == .qr || metadataObject.type == .code128 else { return }
             guard let stringValue = readableObject.stringValue else { return }
+            print(stringValue)
             metadataOutputEnable = false
             videoDataOutputEnable = true
 
