@@ -8,7 +8,7 @@
 
 import UIKit
 import AVFoundation
-
+import Vision
 // MARK: - QRScannerViewDelegate
 public protocol QRScannerViewDelegate: AnyObject {
     // Required
@@ -164,6 +164,30 @@ public class QRScannerView: UIView {
         case authorized, notDetermined, restrictedOrDenied
     }
 
+    private let barcodeRequest = VNDetectBarcodesRequest(completionHandler: { request, error in
+
+        guard let results = request.results else { return }
+
+        // Loopm through the found results
+        for result in results {
+            
+            // Cast the result to a barcode-observation
+            if let barcode = result as? VNBarcodeObservation {
+                
+                // Print barcode-values
+                print("Symbology: \(barcode.symbology.rawValue)")
+                
+                if let desc = barcode.barcodeDescriptor as? CIQRCodeDescriptor {
+                    let content = String(data: desc.errorCorrectedPayload, encoding: .utf8)
+                    
+                    // FIXME: This currently returns nil. I did not find any docs on how to encode the data properly so far.
+                    print("Payload: \(String(describing: content))")
+                    print("Error-Correction-Level: \(desc.errorCorrectionLevel)")
+                    print("Symbol-Version: \(desc.symbolVersion)")
+                }
+            }
+        }
+    })
     private func isAuthorized() -> Bool {
         return authorizationStatus() == .authorized
     }
@@ -345,12 +369,18 @@ extension QRScannerView: AVCaptureMetadataOutputObjectsDelegate {
             guard let stringValue = readableObject.stringValue else { return }
             print(stringValue)
             metadataOutputEnable = false
-            videoDataOutputEnable = true
-
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return }
-                strongSelf.setTorchActive(isOn: false)
-                strongSelf.moveImageViews(qrCode: stringValue, corners: readableObject.corners)
+            if metadataObject.type == .qr {
+                videoDataOutputEnable = true
+                DispatchQueue.main.async { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.setTorchActive(isOn: false)
+                    strongSelf.moveImageViews(qrCode: stringValue, corners: readableObject.corners)
+                }
+            } else if metadataObject.type == .code128 {
+                DispatchQueue.main.async { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.success(stringValue)
+                }
             }
         }
     }
@@ -384,6 +414,8 @@ extension QRScannerView: AVCaptureVideoDataOutputSampleBufferDelegate {
         let sampleBuffer = UIImage(cgImage: cgImage, scale: scale, orientation: .up)
         CVPixelBufferUnlockBaseAddress(pixelBuffer, .readOnly)
 
+//        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+//        let _ = try? handler.perform([barcodeRequest])
         return readQRCode(sampleBuffer)
     }
 
