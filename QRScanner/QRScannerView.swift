@@ -151,6 +151,9 @@ public class QRScannerView: UIView {
     private var videoDataOutputEnable = false
     private var torchActiveObservation: NSKeyValueObservation?
     private var qrCodeImage: UIImage?
+    private var rectofIntrest: CGRect = {
+        return CGRect()
+    }()
     private let supportedCodeTypes = [AVMetadataObject.ObjectType.code128,
                                       AVMetadataObject.ObjectType.qr]
     private lazy var blurEffectView: UIVisualEffectView = {
@@ -241,7 +244,11 @@ public class QRScannerView: UIView {
         metadataOutput.setMetadataObjectsDelegate(self, queue: metadataQueue)
         session.addOutput(metadataOutput)
         metadataOutput.metadataObjectTypes = [.qr, .code128]
-
+        let width = 300.0
+        let x = self.bounds.width * 0.191
+        let y = self.bounds.height * 0.191
+        self.rectofIntrest = CGRect(x: x, y: y, width: width, height: width)
+        metadataOutput.rectOfInterest = self.rectofIntrest
         videoDataOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA]
         videoDataOutput.setSampleBufferDelegate(self, queue: videoDataQueue)
         session.addOutput(videoDataOutput)
@@ -272,7 +279,7 @@ public class QRScannerView: UIView {
     }
 
     private func setupImageViews() {
-        let width = self.bounds.width * 0.618
+        let width = 300.0
         let x = self.bounds.width * 0.191
         let y = self.bounds.height * 0.191
         focusImageView = UIImageView(frame: CGRect(x: x, y: y, width: width, height: width))
@@ -451,5 +458,15 @@ private extension UIImage {
 
         guard let croppedImage = image?.cgImage?.cropping(to: CGRect(x: path.bounds.origin.x * scale, y: path.bounds.origin.y * scale, width: path.bounds.size.width * scale, height: path.bounds.size.height * scale)) else { return nil }
         return UIImage(cgImage: croppedImage, scale: scale, orientation: imageOrientation)
+    }
+}
+class OriginalDim {
+    let width: CGFloat
+    let x: CGFloat
+    let y: CGFloat
+    init(vc: UIView) {
+        self.width = vc.bounds.width * 0.618
+        self.x = vc.bounds.width * 0.191
+        self.y = vc.bounds.height * 0.191
     }
 }
