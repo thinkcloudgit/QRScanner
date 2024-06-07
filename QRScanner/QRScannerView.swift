@@ -151,6 +151,8 @@ public class QRScannerView: UIView {
     private var videoDataOutputEnable = false
     private var torchActiveObservation: NSKeyValueObservation?
     private var qrCodeImage: UIImage?
+    private let supportedCodeTypes = [AVMetadataObject.ObjectType.code128,
+                                      AVMetadataObject.ObjectType.qr]
     private lazy var blurEffectView: UIVisualEffectView = {
         let blurEffectView = UIVisualEffectView(effect: UIBlurEffect(style: .light))
         blurEffectView.frame = self.bounds
@@ -339,7 +341,7 @@ extension QRScannerView: AVCaptureMetadataOutputObjectsDelegate {
     public func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
         guard metadataOutputEnable else { return }
         if let metadataObject = metadataObjects.first {
-            guard let readableObject = previewLayer?.transformedMetadataObject(for: metadataObject) as? AVMetadataMachineReadableCodeObject, metadataObject.type == .qr || metadataObject.type == .code128 else { return }
+            guard let readableObject = previewLayer?.transformedMetadataObject(for: metadataObject) as? AVMetadataMachineReadableCodeObject, supportedCodeTypes.contains(metadataObject.type) else { return }
             guard let stringValue = readableObject.stringValue else { return }
             print(stringValue)
             metadataOutputEnable = false
